@@ -26,10 +26,25 @@ using SharpDX.Toolkit.Content;
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// Internal class to load a SpriteFont.
+    /// Class to load a Model.
     /// </summary>
-    internal class ModelContentReader : GraphicsResourceContentReaderBase<Model>
+    public class ModelContentReader<TModelReader> : GraphicsResourceContentReaderBase<Model>
     {
+        protected virtual Texture LoadTexture(IContentManager contentManager, string modelAssetPath, string name)
+        {
+            // Try to load the texture with its texture path as is
+            // otherwise try to load with tkb extension
+            var texturePath = Path.Combine(modelAssetPath ?? string.Empty, name);
+            if (!contentManager.Exists(texturePath))
+            {
+                // Use the extension tkb to load a texture
+                texturePath = Path.ChangeExtension(texturePath, "tkb");
+            }
+
+            // If the texture exists, return it, otherwise return null without throwing an exception.
+            return contentManager.Exists(texturePath) ? contentManager.Load<Texture>(texturePath) : null;
+        }
+
         protected override Model ReadContent(IContentManager readerManager, GraphicsDevice device, ref ContentReaderParameters parameters)
         {
             var readerOptions = parameters.Options as ModelContentReaderOptions;
@@ -41,20 +56,18 @@ namespace SharpDX.Toolkit.Graphics
             var assetPath = Path.GetDirectoryName(parameters.AssetName);
 
             // Loads the model.
-            var model = Model.Load(device, parameters.Stream, name =>
+            Model model;
+            using (var serializer = (ModelReader)Activator.CreateInstance(
+                typeof(TModelReader),
+                new object[]
                 {
-                    // Try to load the texture with its texture path as is
-                    // otherwise try to load with tkb extension
-                    var texturePath = Path.Combine(assetPath ?? string.Empty, name);
-                    if (!readerManager.Exists(texturePath))
-                    {
-                        // Use the extension tkb to load a texture
-                        texturePath = Path.ChangeExtension(texturePath, "tkb");
-                    }
-
-                    // If the texture exists, return it, otherwise return null without throwing an exception.
-                    return readerManager.Exists(texturePath) ? readerManager.Load<Texture>(texturePath) : null;
-                });
+                    device,
+                    parameters.Stream,
+                    (ModelMaterialTextureLoaderDelegate)(name => LoadTexture(readerManager, assetPath, name))
+                }))
+            {
+                model = serializer.ReadModel();
+            }
 
             if (model == null)
             {
