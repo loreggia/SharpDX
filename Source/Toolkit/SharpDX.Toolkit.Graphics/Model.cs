@@ -27,7 +27,7 @@ namespace SharpDX.Toolkit.Graphics
 {
     public delegate Texture ModelMaterialTextureLoaderDelegate(string name);
 
-    [ContentReader(typeof(ModelContentReader<ModelReader>))]
+    [ContentReader(typeof(ModelContentReader))]
     public class Model : Component
     {
         private static Matrix[] sharedDrawBones;

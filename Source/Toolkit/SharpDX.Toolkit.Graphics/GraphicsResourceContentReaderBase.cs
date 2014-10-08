@@ -28,7 +28,7 @@ namespace SharpDX.Toolkit.Graphics
     /// Base class for all GraphicsResource content reader.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class GraphicsResourceContentReaderBase<T> : IContentReader
+    abstract class GraphicsResourceContentReaderBase<T> : IContentReader
     {
         object IContentReader.ReadContent(IContentManager readerManager, ref ContentReaderParameters parameters)
         {
