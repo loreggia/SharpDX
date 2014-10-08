@@ -878,8 +878,8 @@ namespace SharpDX.Toolkit.Graphics
                 // Add tangent / bitangent
                 if (assimpMesh.HasTangentBasis)
                 {
-                    var tangent = ConvertVector(assimpMesh.Normals[i]);
-                    var bitangent = ConvertVector(assimpMesh.Normals[i]);
+                    var tangent = ConvertVector(assimpMesh.Tangents[i]);
+                    var bitangent = ConvertVector(assimpMesh.BiTangents[i]);
                     vertexStream.Write(tangent);
                     vertexStream.Write(bitangent);
                 }
